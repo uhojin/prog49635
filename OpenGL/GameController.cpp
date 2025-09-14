@@ -1,5 +1,6 @@
 #include "GameController.h"
 #include "WindowController.h"
+#include "ToolWindow.h"
 
 GameController::GameController()
 {
@@ -17,6 +18,10 @@ void GameController::Initialize()
 
 void GameController::RunGame()
 {
+	// Show the C++/CLI tool window
+	OpenGL::ToolWindow^ window = gcnew OpenGL::ToolWindow();
+	window->Show();
+
 	// Create and compile out GLSL program grom the shaders
 	m_shader = Shader();
 	m_shader.LoadShaders(
@@ -30,6 +35,7 @@ void GameController::RunGame()
 	//GLFWwindow* win = WindowController::GetInstance().GetWindow();
 	do
 	{
+		System::Windows::Forms::Application::DoEvents(); // Handle C++/CLI form events
 		glClear(GL_COLOR_BUFFER_BIT);	// Clear screen
 		m_mesh.Render();
 		//glfwSwapBuffers(win);			// Swap the front and back buffers
