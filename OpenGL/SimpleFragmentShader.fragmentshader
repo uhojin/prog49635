@@ -1,6 +1,15 @@
 #version 120 // OpenGL Version 2.1 min req
 
+uniform int RenderRedChannel;
+uniform int RenderGreenChannel;
+uniform int RenderBlueChannel;
+
+
 void main()
 {
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 0.0); // Output color = red
+    gl_FragColor = vec4(
+    RenderRedChannel, 
+    RenderGreenChannel, 
+    RenderBlueChannel, 
+    0.0);
 }
