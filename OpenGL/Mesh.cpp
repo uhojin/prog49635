@@ -5,6 +5,7 @@ Mesh::Mesh()
 {
 	m_shader = nullptr;
 	m_vertexBuffer = 0;
+	m_world = glm::mat4(1.0f);
 }
 
 Mesh::~Mesh()
@@ -26,7 +27,7 @@ void Mesh::Cleanup()
 	glDeleteBuffers(1, &m_vertexBuffer);
 }
 
-void Mesh::Render()
+void Mesh::Render(glm::mat4 _wvp)
 {
 	glUseProgram(m_shader->GetProgramID()); // Use our own shader
 
@@ -40,7 +41,10 @@ void Mesh::Render()
 		0,								/*stride*/
 		(void*)0						/*array buffer offset*/
 	);
+
+	_wvp *= m_world;
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+	glUniformMatrix4fv(m_shader->GetAttrWVP(), 1, GL_FALSE, &_wvp[0][0]);
 
 	// Draw the triangle
 	glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 verticies = 1 triangle

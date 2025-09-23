@@ -1,8 +1,13 @@
 #version 120 // OpenGL version 2.1 (min)
 
-in vec3 vertices; // value from app to this attr
+in vec3 vertices;	// value from app to this attr
+in vec4 colors;		// value input colour from application
+uniform mat4 WVP;
+
+out vec4 retColor;	//
 
 void main()
 {
-gl_Position = vec4(vertices, 1.0); // pass-through shader, pass positions to next shader
+	gl_Position = WVP * vec4(vertices, 1.0); // transform the model to screen projection
+	//gl_Position = vec4(vertices, 1.0); // pass-through shader, pass positions to next shader
 }
