@@ -71,7 +71,7 @@ void Mesh::Render(glm::mat4 _wvp)
 		4,												// size (4 components per color value)
 		GL_FLOAT,										// type
 		GL_FALSE,										// normalized?
-		7 * sizeof(float),								// stride (7 floats per vertex definition)
+		8 * sizeof(float),								// stride (8 floats per vertex definition)
 		(void*)(3 * sizeof(float))						// array buffer offset
 	);
 
