@@ -5,6 +5,7 @@ Mesh::Mesh()
 {
 	m_shader = nullptr;
 	m_texture = { };
+	m_texture2 = { };
 	m_vertexBuffer = 0;
 	m_indexBuffer = 0;
 	m_position = { 0, 0, 0 };
@@ -21,6 +22,8 @@ void Mesh::Create(Shader* _shader)
 	m_shader = _shader;
 	m_texture = Texture();
 	m_texture.LoadTexture("../Assets/Textures/Wood.jpg");
+	m_texture2 = Texture();
+	m_texture2.LoadTexture("../Assets/Textures/Emoji.jpg");
 
 	m_vertexData = {
 		//  X     Y     Z       R     G     B        S     T
@@ -48,6 +51,7 @@ void Mesh::Cleanup()
 	glDeleteBuffers(1, &m_indexBuffer);
 	glDeleteBuffers(1, &m_vertexBuffer);
 	m_texture.Cleanup();
+	m_texture2.Cleanup();
 }
 
 void Mesh::Render(glm::mat4 _wvp)
@@ -97,10 +101,14 @@ void Mesh::Render(glm::mat4 _wvp)
 	glBindTexture(GL_TEXTURE_2D, m_texture.GetTexture());
 	glUniform1i(m_shader->GetSampler1(), 0);
 
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_texture2.GetTexture());
+	glUniform1i(m_shader->GetSampler2(), 1);
+
 	
 	glDrawElements(
 		GL_TRIANGLES,				// mode
-		m_indexData.size(),		// count
+		m_indexData.size(),			// count
 		GL_UNSIGNED_BYTE,			// type
 		(void*)0					// element array buffer offset
 	);
