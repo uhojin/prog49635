@@ -15,7 +15,7 @@ void GameController::Initialize()
 	M_ASSERT(glewInit() == GLEW_OK, "Failed to initialize GLEW.");		// Init GLEW
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);				// Ensure we can capture the escape key
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);								// Dark Blue background
-	
+	glEnable(GL_CULL_FACE);
 
 	// Create a default perspective camera
 	m_camera = Camera(WindowController::GetInstance().GetResolution());

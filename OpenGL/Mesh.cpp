@@ -4,8 +4,11 @@
 Mesh::Mesh()
 {
 	m_shader = nullptr;
+	m_texture = { };
 	m_vertexBuffer = 0;
-	m_world = glm::mat4(1.0f);
+	m_indexBuffer = 0;
+	m_position = { 0, 0, 0 };
+	m_rotation = { 0, 0, 0 };
 }
 
 Mesh::~Mesh()
@@ -16,25 +19,35 @@ Mesh::~Mesh()
 void Mesh::Create(Shader* _shader)
 {
 	m_shader = _shader;
-	//m_vertexData = { -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f };
+	m_texture = Texture();
+	m_texture.LoadTexture("../Assets/Textures/Wood.jpg");
+
 	m_vertexData = {
-		/* position */	 /* RGBA Colours*/
-	   0.2f, 0.2f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-	   0.3f, 0.9f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-	   0.4f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-	   0.7f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-	   0.8f, 0.4f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-	   1.0f, 0.6f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-	   1.0f, 0.2f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-	   1.5f, 0.6f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f };
+		//  X     Y     Z       R     G     B        S     T
+		50.0f, 50.0f, 0.0f,   1.0f, 0.0f, 0.0f,		1.0f, 1.0f,		// Top Right
+		50.0f, -50.0f, 0.0f,  0.0f, 1.0f, 0.0f,		1.0f, 0.0f,		// Bottom Right
+		-50.0f, -50.0f, 0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		// Bottom Left
+		-50.0f, 50.0f, 0.0f,  1.0f, 1.0f, 1.0f,		0.0f, 1.0f		// Top Left
+	};
+
 	glGenBuffers(1, &m_vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, m_vertexData.size() * sizeof(GLfloat), m_vertexData.data(), GL_STATIC_DRAW);
+
+	m_indexData = {
+		2, 0, 3, 2, 1, 0
+	};
+
+	glGenBuffers(1, &m_indexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexData.size() * sizeof(GLubyte), m_indexData.data(), GL_STATIC_DRAW);
 }
 
 void Mesh::Cleanup()
 {
+	glDeleteBuffers(1, &m_indexBuffer);
 	glDeleteBuffers(1, &m_vertexBuffer);
+	m_texture.Cleanup();
 }
 
 void Mesh::Render(glm::mat4 _wvp)
@@ -48,7 +61,7 @@ void Mesh::Render(glm::mat4 _wvp)
 		3,								// size 
 		GL_FLOAT,						// type
 		GL_FALSE,						// normalized?
-		7 * sizeof(float),				// stride (7 floats per vertex definition)
+		8 * sizeof(float),				// stride (8 floats per vertex definition)
 		(void*)0						// array buffer offset
 	);
 
@@ -62,15 +75,33 @@ void Mesh::Render(glm::mat4 _wvp)
 		(void*)(3 * sizeof(float))						// array buffer offset
 	);
 
-	// 3rd attribute : WVP
+	// 3rd attribute : texCoords
+	glEnableVertexAttribArray(m_shader->GetAttrTexCoords());
+	glVertexAttribPointer(m_shader->GetAttrTexCoords(), // The Attribute we want to configure
+		2,												// size (2 components per texCoord value)
+		GL_FLOAT,										// type
+		GL_FALSE,										// normalized?
+		8 * sizeof(float),								// stride (8 floats per vertex definition)
+		(void*)(6 * sizeof(float))						// array buffer offset
+	);
 
-	_wvp *= m_world;
-	glUniformMatrix4fv(m_shader->GetAttrWVP(), 1, GL_FALSE, &_wvp[0][0]);
+	// 4th attribute : WVP
+	m_rotation.y += 0.005f;
+	glm::mat4 transform = glm::rotate(_wvp, m_rotation.y, glm::vec3(0, 1, 0));
+	glUniformMatrix4fv(m_shader->GetAttrWVP(), 1, GL_FALSE, &transform[0][0]);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-	// Draw the triangle
-	glDrawArrays(GL_TRIANGLES, 0, m_vertexData.size() / 7);
-
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
+	glBindTexture(GL_TEXTURE_2D, m_texture.GetTexture());
+	
+	glDrawElements(
+		GL_TRIANGLES,				// mode
+		m_indexData.size(),		// count
+		GL_UNSIGNED_BYTE,			// type
+		(void*)0					// element array buffer offset
+	);
+	
 	glDisableVertexAttribArray(m_shader->GetAttrColors());
 	glDisableVertexAttribArray(m_shader->GetAttrVertices());
+	glDisableVertexAttribArray(m_shader->GetAttrTexCoords());
 }

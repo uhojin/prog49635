@@ -1,14 +1,18 @@
 #version 330 // OpenGL version 3.3 (min)
 
 in vec3 vertices;	// value from app to this attr
-in vec4 colors;		// value input colour from application
+in vec3 colors;		// value input colour from application
+in vec2 texCoords;
+
 uniform mat4 WVP;
 
-out vec4 retColor;	// output a colour to a fragment shader
+out vec3 retColor;	// output a colour to a fragment shader
+out vec2 retTexCoord;
 
 void main()
 {
 	gl_Position = WVP * vec4(vertices, 1.0); // transform the model to screen projection
 	//gl_Position = vec4(vertices, 1.0); // pass-through shader, pass positions to next shader
 	retColor = colors;
+	retTexCoord = texCoords;
 }
