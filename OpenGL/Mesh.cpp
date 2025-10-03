@@ -92,7 +92,11 @@ void Mesh::Render(glm::mat4 _wvp)
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
+	
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture.GetTexture());
+	glUniform1i(m_shader->GetSampler1(), 0);
+
 	
 	glDrawElements(
 		GL_TRIANGLES,				// mode
