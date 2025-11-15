@@ -593,6 +593,10 @@ copy /Y "$(SolutionDir)External\glfw-3.3.4\lib-vc2019\glfw3.dll" "$(TargetDir)"<
     <None Include="..\..\..\..\Downloads\External\glm\glm\gtx\vector_angle.inl" />
     <None Include="..\..\..\..\Downloads\External\glm\glm\gtx\vector_query.inl" />
     <None Include="..\..\..\..\Downloads\External\glm\glm\gtx\wrap.inl" />
+    <None Include="Color.fragmentshader" />
+    <None Include="Color.vertexshader" />
+    <None Include="Diffuse.fragmentshader" />
+    <None Include="Diffuse.vertexshader" />
     <None Include="SimpleFragmentShader.fragmentshader" />
     <None Include="SimpleVertexShader.vertexshader" />
   </ItemGroup>

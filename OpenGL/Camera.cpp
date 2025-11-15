@@ -4,10 +4,12 @@ Camera::Camera()
 {
 	m_projection = { };
 	m_view = { };
+	m_position = { };
 }
 
 Camera::Camera(Resolution _screenResolution)
 {
+	m_position = { 2, 2, 2 };
 	// Projection matrix : 45 degree field of view, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	m_projection = glm::perspective(glm::radians(45.0f),
 		(float)_screenResolution.m_width /
@@ -19,7 +21,7 @@ Camera::Camera(Resolution _screenResolution)
 
 	// camera matrix
 	m_view = glm::lookAt(
-		glm::vec3(100, 100, 100),		// Camera is at (4,3,3) in world space
+		m_position,
 		glm::vec3(0, 0, 0),		// and looks at the origin
 		glm::vec3(0, 1, 0)		// head is up (set to 0,-1,0 to look upside down)
 	);

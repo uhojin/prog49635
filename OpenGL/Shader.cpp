@@ -5,6 +5,7 @@ Shader::Shader()
 	m_programID = 0;
 	m_attrVertices = 0;
 	m_attrColors = 0;
+	m_attrNormals = 0;
 	m_attrTexCoords = 0;
 	m_attrWVP = 0;
 	m_sampler1 = 0;
@@ -17,10 +18,39 @@ void Shader::Cleanup()
 {
 	glDeleteProgram(m_programID);
 }
+
+void Shader::SetVec3(const char* _name, glm::vec3 _value)
+{
+	GLuint location = glGetUniformLocation(m_programID, _name);
+	if (location != -1)
+	{
+		glUniform3fv(location, 1, &_value[0]);
+	}
+}
+
+void Shader::SetMat4(const char* _name, glm::mat4 _value)
+{
+	GLuint location = glGetUniformLocation(m_programID, _name);
+	if (location != -1)
+	{
+		glUniformMatrix4fv(location, 1, GL_FALSE, &_value[0][0]);
+	}
+}
+
+void Shader::SetFloat(const char* _name, float _value)
+{
+	GLuint location = glGetUniformLocation(m_programID, _name);
+	if (location != -1)
+	{
+		glUniform1f(location, _value);
+	}
+}
+
 void Shader::LoadAttributes()
 {
 	m_attrVertices = glGetAttribLocation(m_programID, "vertices"); // Get a handle for the vertex buffer
 	m_attrColors = glGetAttribLocation(m_programID, "colors");	// Get a handle for the colors buffer
+	m_attrNormals = glGetAttribLocation(m_programID, "normals"); // Get a handle for the normals buffer
 	m_attrTexCoords = glGetAttribLocation(m_programID, "texCoords"); // Get a handle for the texture coordinates buffer
 	m_attrWVP = glGetUniformLocation(m_programID, "WVP");	// Get a handle for the WVP matrix
 	m_sampler1 = glGetUniformLocation(m_programID, "sampler1"); // Get a handle for our texture sampler1

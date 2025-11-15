@@ -1375,6 +1375,18 @@
     <None Include="SimpleVertexShader.vertexshader">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Diffuse.vertexshader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Diffuse.fragmentshader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Color.fragmentshader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Color.vertexshader">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wood.jpg">
