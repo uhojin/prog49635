@@ -19,6 +19,17 @@ void Shader::Cleanup()
 	glDeleteProgram(m_programID);
 }
 
+void Shader::SetTextureSampler(const char* _name, GLuint _texUnit, int _texUnitID, int _value)
+{
+	GLuint location = glGetUniformLocation(m_programID, _name);
+	if (location != -1)
+	{
+		glActiveTexture(_texUnit);
+		glBindTexture(GL_TEXTURE_2D, _value);
+		glUniform1i(location, _texUnitID);
+	}
+}
+
 void Shader::SetVec3(const char* _name, glm::vec3 _value)
 {
 	GLuint location = glGetUniformLocation(m_programID, _name);
@@ -53,8 +64,6 @@ void Shader::LoadAttributes()
 	m_attrNormals = glGetAttribLocation(m_programID, "normals"); // Get a handle for the normals buffer
 	m_attrTexCoords = glGetAttribLocation(m_programID, "texCoords"); // Get a handle for the texture coordinates buffer
 	m_attrWVP = glGetUniformLocation(m_programID, "WVP");	// Get a handle for the WVP matrix
-	m_sampler1 = glGetUniformLocation(m_programID, "sampler1"); // Get a handle for our texture sampler1
-	m_sampler2 = glGetUniformLocation(m_programID, "sampler2"); // Get a handle for our texture sampler2
 }
 void Shader::EvaluateShader(int _infoLength, GLuint _id)
 {

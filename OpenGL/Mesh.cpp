@@ -1,6 +1,8 @@
 #include "Mesh.h"
 #include "Shader.h"
 
+vector<Mesh> Mesh::Lights;
+
 Mesh::Mesh()
 {
 	m_shader = nullptr;
@@ -12,8 +14,6 @@ Mesh::Mesh()
 	m_rotation = { 0, 0, 0 };
 	m_scale = { 1, 1, 1 };
 	m_world = glm::mat4();
-	m_lightPosition = { 0, 0, 0 };
-	m_lightColor = { 1, 1, 1 };
 }
 
 Mesh::~Mesh()
@@ -24,10 +24,11 @@ Mesh::~Mesh()
 void Mesh::Create(Shader* _shader)
 {
 	m_shader = _shader;
+
 	m_texture = Texture();
-	m_texture.LoadTexture("../Assets/Textures/Wood.jpg");
+	m_texture.LoadTexture("../Assets/Textures/MetalFrameWood.jpg");
 	m_texture2 = Texture();
-	m_texture2.LoadTexture("../Assets/Textures/Emoji.jpg");
+	m_texture2.LoadTexture("../Assets/Textures/MetalFrame.jpg");
 
 #pragma region VertexData
 	m_vertexData = {
@@ -77,6 +78,12 @@ void Mesh::Create(Shader* _shader)
 
 }
 
+string Mesh::Concat(string _s1, int _index, string _s2)
+{
+	string index = to_string(_index);
+	return _s1 + index + _s2;
+}
+
 void Mesh::Cleanup()
 {
 	glDeleteBuffers(1, &m_vertexBuffer);
@@ -118,14 +125,6 @@ void Mesh::BindAttributes()
 	);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-	
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_texture.GetTexture());
-	glUniform1i(m_shader->GetSampler1(), 0);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, m_texture2.GetTexture());
-	glUniform1i(m_shader->GetSampler2(), 1);
 }
 
 void Mesh::CalculateTransform()
@@ -138,21 +137,38 @@ void Mesh::CalculateTransform()
 void Mesh::SetShaderVariables(glm::mat4 _pv)
 {
 	m_shader->SetMat4("World", m_world);
-	m_shader->SetVec3("AmbientLight", { 0.1f, 0.1f, 0.1f });
-	m_shader->SetVec3("DiffuseColor", { 1.0f, 1.0f, 1.0f });
-	m_shader->SetFloat("SpecularStrength", 4);
-	m_shader->SetVec3("SpecularColor", { 3.0f, 0.0f, 0.0f });
-	m_shader->SetVec3("LightPosition", m_lightPosition);
-	m_shader->SetVec3("LightColor", m_lightColor);
 	m_shader->SetMat4("WVP", _pv * m_world);
 	m_shader->SetVec3("CameraPosition", m_cameraPosition);
+
+
+	// Configure lights
+	for (unsigned int i = 0; i < Lights.size(); i++)
+	{
+		m_shader->SetFloat(Concat("lights[", i, "].constant").c_str(), 1.0f);
+		m_shader->SetFloat(Concat("lights[", i, "].linear").c_str(), 0.09f);
+		m_shader->SetFloat(Concat("lights[", i, "].quadratic").c_str(), 0.032f);
+
+		m_shader->SetVec3(Concat("lights[", i, "].ambientColor").c_str(), { 0.1f, 0.1f, 0.1f });
+		m_shader->SetVec3(Concat("lights[", i, "].diffuseColor").c_str(), Lights[i].GetColor());
+		m_shader->SetVec3(Concat("lights[", i, "].specularColor").c_str(), { 3.0f, 3.0f, 3.0f });
+
+		m_shader->SetVec3(Concat("lights[", i, "].position").c_str(), Lights[i].GetPosition());
+		m_shader->SetVec3(Concat("lights[", i, "].direction").c_str(), glm::normalize(glm::vec3({ 0.0f + i * 0.1f, 0, 0.0f + i * 0.1f }) - Lights[i].GetPosition()));
+		m_shader->SetFloat(Concat("lights[", i, "].coneAngle").c_str(), glm::radians(5.0f));
+		m_shader->SetFloat(Concat("lights[", i, "].falloff").c_str(), 200);
+	}
+	
+	// Configure material
+	m_shader->SetFloat("SpecularStrength", 8);
+	m_shader->SetTextureSampler("material.diffuseTexture", GL_TEXTURE0, 0, m_texture.GetTexture());
+	m_shader->SetTextureSampler("material.specularTexture", GL_TEXTURE1, 1, m_texture2.GetTexture());
 }
 
 void Mesh::Render(glm::mat4 _pv)
 {
 	glUseProgram(m_shader->GetProgramID()); // use our shader
 
-	m_rotation.y += 0.005f; // rotate the cube a little bit each frame
+	m_rotation.y += 0.001f; // rotate the cube a little bit each frame
 
 	CalculateTransform();
 	SetShaderVariables(_pv);

@@ -23,7 +23,7 @@ private:
 	Shader m_shaderColor;
 	Shader m_shaderDiffuse;
 	Camera m_camera;
-	Mesh m_meshBox;
+	vector<Mesh> m_meshBoxes;
 	Mesh m_meshLight;
 };
 #endif // GAME_CONTROLLER_H
