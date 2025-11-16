@@ -17,6 +17,9 @@ Mesh::Mesh()
 	m_rotation = { 0, 0, 0 };
 	m_scale = { 1, 1, 1 };
 	m_world = glm::mat4();
+	m_specularStrength = 8.0f;
+	m_specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_rotationEnabled = true;
 }
 
 Mesh::~Mesh()
@@ -63,7 +66,23 @@ void Mesh::Create(Shader* _shader, string _file)
 	glGenBuffers(1, &m_vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, m_vertexData.size() * sizeof(GLfloat), m_vertexData.data(), GL_STATIC_DRAW);
+}
 
+void Mesh::CreateFromVertexData(Shader* _shader, const vector<GLfloat>& _vertexData, const string& _texturePath)
+{
+	m_shader = _shader;
+	m_vertexData = _vertexData;
+
+	// Load textures
+	m_texture = Texture();
+	m_texture.LoadTexture(_texturePath);
+	m_texture2 = Texture();
+	m_texture2.LoadTexture(_texturePath);
+
+	// Create vertex buffer
+	glGenBuffers(1, &m_vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexData.size() * sizeof(GLfloat), m_vertexData.data(), GL_STATIC_DRAW);
 }
 
 string Mesh::Concat(string _s1, int _index, string _s2)
@@ -118,7 +137,7 @@ void Mesh::BindAttributes()
 void Mesh::CalculateTransform()
 {
 	m_world = glm::translate(glm::mat4(1.0f), m_position);
-	m_world = glm::rotate(m_world, m_rotation.y, glm::vec3(0, 1, 0));
+	m_world = glm::rotate(m_world, m_rotation.x, glm::vec3(1, 0, 0));
 	m_world = glm::scale(m_world, m_scale);
 }
 
@@ -127,6 +146,7 @@ void Mesh::SetShaderVariables(glm::mat4 _pv)
 	m_shader->SetMat4("World", m_world);
 	m_shader->SetMat4("WVP", _pv * m_world);
 	m_shader->SetVec3("CameraPosition", m_cameraPosition);
+	m_shader->SetVec3("color", m_color);
 
 
 	// Configure lights
@@ -138,7 +158,7 @@ void Mesh::SetShaderVariables(glm::mat4 _pv)
 
 		m_shader->SetVec3(Concat("lights[", i, "].ambientColor").c_str(), { 0.1f, 0.1f, 0.1f });
 		m_shader->SetVec3(Concat("lights[", i, "].diffuseColor").c_str(), Lights[i].GetColor());
-		m_shader->SetVec3(Concat("lights[", i, "].specularColor").c_str(), { 3.0f, 3.0f, 3.0f });
+		m_shader->SetVec3(Concat("lights[", i, "].specularColor").c_str(), m_specularColor);
 
 		m_shader->SetVec3(Concat("lights[", i, "].position").c_str(), Lights[i].GetPosition());
 		m_shader->SetVec3(Concat("lights[", i, "].direction").c_str(), glm::normalize(glm::vec3({ 0.0f + i * 0.1f, 0, 0.0f + i * 0.1f }) - Lights[i].GetPosition()));
@@ -147,7 +167,7 @@ void Mesh::SetShaderVariables(glm::mat4 _pv)
 	}
 	
 	// Configure material
-	m_shader->SetFloat("material.specularStrength", 8);
+	m_shader->SetFloat("material.specularStrength", m_specularStrength);
 	m_shader->SetTextureSampler("material.diffuseTexture", GL_TEXTURE0, 0, m_texture.GetTexture());
 	m_shader->SetTextureSampler("material.specularTexture", GL_TEXTURE1, 1, m_texture2.GetTexture());
 }
@@ -156,7 +176,10 @@ void Mesh::Render(glm::mat4 _pv)
 {
 	glUseProgram(m_shader->GetProgramID()); // use our shader
 
-	m_rotation.y += 0.001f; // rotate the cube a little bit each frame
+	if (m_rotationEnabled)
+	{
+		m_rotation.x += 0.001f; // rotate around X axis each frame
+	}
 
 	CalculateTransform();
 	SetShaderVariables(_pv);

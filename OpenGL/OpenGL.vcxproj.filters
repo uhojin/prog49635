@@ -45,6 +45,12 @@
     <ClCompile Include="Fonts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MouseController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProceduralGeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Downloads\External\glew-2.1.0\include\GL\eglew.h">
@@ -956,6 +962,12 @@
     <ClInclude Include="Fonts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MouseController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProceduralGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Downloads\External\glm\glm\detail\func_common.inl">
@@ -1397,6 +1409,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Font.fragmentshader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Position.fragmentshader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Position.vertexshader">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

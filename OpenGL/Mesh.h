@@ -21,8 +21,12 @@ public:
 	void SetLightPosition(glm::vec3 _lightPosition) { m_lightPosition = _lightPosition; }
 	void SetLightColor(glm::vec3 _lightColor) { m_lightColor = _lightColor; }
 	void SetCameraPosition(glm::vec3 _cameraPosition) { m_cameraPosition = _cameraPosition; }
+	void SetSpecularStrength(float _strength) { m_specularStrength = _strength; }
+	void SetSpecularColor(glm::vec3 _specColor) { m_specularColor = _specColor; }
+	void SetRotationEnabled(bool _enabled) { m_rotationEnabled = _enabled; }
 	// Methods
 	void Create(Shader* _shader, string _file);
+	void CreateFromVertexData(Shader* _shader, const vector<GLfloat>& _vertexData, const string& _texturePath);
 	void Cleanup();
 	void CalculateTransform();
 	void Render(glm::mat4 _pv);
@@ -57,5 +61,12 @@ private:
 	// Lights
 	glm::vec3 m_lightPosition;
 	glm::vec3 m_lightColor;
+
+	// Material properties
+	float m_specularStrength;
+	glm::vec3 m_specularColor;
+
+	// Rotation control
+	bool m_rotationEnabled;
 };
 #endif // !MESH_H

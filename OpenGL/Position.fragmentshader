@@ -1,0 +1,36 @@
+#version 330
+
+in vec3 retWorldPos;
+in vec2 retTexCoord;
+
+out vec4 FragColor;
+
+struct Material
+{
+	sampler2D diffuseTexture;
+};
+
+uniform Material material;
+
+void main()
+{
+	// Get base texture color
+	vec4 texColor = texture(material.diffuseTexture, retTexCoord);
+
+	// Calculate position-based color tinting
+	// X position -> Red tint
+	// Y position -> Green tint
+	// Z position -> Blue tint
+	// Use abs() so both positive and negative positions create color
+	vec3 positionColor = vec3(
+		abs(retWorldPos.x),
+		abs(retWorldPos.y),
+		abs(retWorldPos.z)
+	);
+
+	// Blend texture with position-based color
+	// Mix 50% texture, 50% position color for visible tinting
+	vec3 finalColor = mix(texColor.rgb, positionColor, 0.5);
+
+	FragColor = vec4(finalColor, 1.0f);
+}

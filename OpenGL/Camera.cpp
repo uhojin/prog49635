@@ -9,7 +9,7 @@ Camera::Camera()
 
 Camera::Camera(Resolution _screenResolution)
 {
-	m_position = { 1, 1, 1 };
+	m_position = { 0, 1.5f, 4 };
 	// Projection matrix : 45 degree field of view, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	m_projection = glm::perspective(glm::radians(45.0f),
 		(float)_screenResolution.m_width /
