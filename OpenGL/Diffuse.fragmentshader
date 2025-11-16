@@ -21,49 +21,27 @@ struct Light
 	vec3 ambientColor;
 	vec3 diffuseColor;
 	vec3 specularColor;
-	
-	float constant;
-	float linear;
-	float quadratic;
-
-	vec3 direction;
-	float coneAngle;
-	float falloff;
 };
-
+	
 uniform Material material;
-#define NR_LIGHTS 4
-uniform Light light[NR_LIGHTS];
+#define NR_LIGHTS 1
+uniform Light lights[NR_LIGHTS];
 
 void main()
 {
 	vec4 finalColor = vec4(0);
 	for (int i = 0; i < NR_LIGHTS; i++)
 	{
-		vec3 lightDir = normalize(light[i].position - retFragPos);
-		float a = cos(light[i].coneAngle);
-		float d = dot(normalize(light[i].direction), -lightDir);
-	
-		if (a < d) // visibile in cone?
-		{
-			float lambertianStrength = dot(lightDir, retNormal);
-			vec3 refl = reflect(-lightDir, retNormal);
-			float specularStrength = pow(max(dot(refl, retViewDirection), 0.0f), material.specularStrength);
-			float distance = length(light[i].position - retFragPos);
-			float att = 1.0f / (light[i].constant + light[i].linear * distance + light[i].quadratic * (distance * distance));
-			att *= 1 - pow(clamp(a / d, 0.0f, 1.0f), light[i].falloff); // spottlight falloff
+		vec3 lightDir = normalize(lights[i].position - retFragPos); // Normalize
+		float lambertianStrength = dot(lightDir, retNormal); // add lambertian lighting
+		vec3 refl = reflect(-lightDir, retNormal);
+		float specularStrength = pow(max(dot(retViewDirection, refl), 0.0f), material.specularStrength);
 
-			vec3 ambient = texture(material.diffuseTexture, retTexCoord).rgb * light[i].ambientColor * att;
-			vec3 lambertian = lambertianStrength * texture(material.diffuseTexture, retTexCoord).rgb * light[i].diffuseColor * att;
-			vec3 specular = specularStrength * texture(material.specularTexture, retTexCoord).rgb * light[i].specularColor * att;
+		vec3 ambient = texture(material.diffuseTexture, retTexCoord).rgb * lights[i].ambientColor / NR_LIGHTS;
+		vec3 lambertian = lambertianStrength * texture(material.diffuseTexture, retTexCoord).rgb * lights[i].diffuseColor;
+		vec3 specular = specularStrength * texture(material.specularTexture, retTexCoord).rgb * lights[i].specularColor;
 
-			FragColor = vec4(ambient + lambertian + specular, 1.0f); // calculat final color
-		}
-		else
-		{
-			vec3 ambient = texture(material.diffuseTexture, retTexCoord).rgb * light[i].ambientColor / NR_LIGHTS;
-			FragColor = vec4(ambient, 1.0f); // calculate final color
-		}
+		finalColor += vec4(ambient + lambertian + specular, 1.0f); // calculate final color
 	}
 
 	FragColor = finalColor;

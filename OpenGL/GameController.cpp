@@ -1,6 +1,7 @@
 #include "GameController.h"
 #include "WindowController.h"
 #include "ToolWindow.h"
+#include "Fonts.h"
 
 GameController::GameController()
 {
@@ -8,7 +9,6 @@ GameController::GameController()
 	m_shaderDiffuse = { };
 	m_camera = { };
 	m_meshBoxes.clear();
-	m_meshLight = { };
 }
 
 void GameController::Initialize()
@@ -18,7 +18,8 @@ void GameController::Initialize()
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);				// Ensure we can capture the escape key
 	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);								// grey background
 	glEnable(GL_DEPTH_TEST);
-	srand(time(0));
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	srand((unsigned int)time(0));
 	// Create a default perspective camera
 	m_camera = Camera(WindowController::GetInstance().GetResolution());
 }
@@ -39,38 +40,29 @@ void GameController::RunGame()
 		"Diffuse.fragmentshader"
 	);
 
+	m_shaderFont = Shader();
+	m_shaderFont.LoadShaders(
+		"Font.vertexshader",
+		"Font.fragmentshader"
+	);
+
 	// Create meshes
-	m_meshLight = Mesh();
-	m_meshLight.Create(&m_shaderColor);
-	m_meshLight.SetPosition({ 0.5f, 0.0f, -0.5f });
-	m_meshLight.SetScale({ 0.1f, 0.1f, 0.1f });
+	Mesh m = Mesh();
+	m.Create(&m_shaderColor, "../Assets/Models/Teapot.obj");
+	m.SetPosition({ 1.0f, 0.0f, 0.0f });
+	m.SetColor({ 1.0f, 1.0f, 1.0f });
+	m.SetScale({ 0.01f, 0.01f, 0.01f });
+	Mesh::Lights.push_back(m);
 
-	for (int count = 0; count < 4; count++)
-	{
-		Mesh m = Mesh();
-		m.Create(&m_shaderColor);
-		m.SetPosition({ 0.5f + (float)count / 10.0f, 0.0f, -0.5f });
-		m.SetColor({ glm::linearRand(0.0f, 1.0f), glm::linearRand(0.0f, 1.0f), glm::linearRand(0.0f, 1.0f) });
-		m.SetScale({ 0.1f, 0.1f, 0.1f });
-		Mesh::Lights.push_back(m);
-	}
+	Mesh teapot = Mesh();
+	teapot.Create(&m_shaderDiffuse, "../Assets/Models/Teapot.obj");
+	teapot.SetCameraPosition(m_camera.GetPosition());
+	teapot.SetScale({ 0.02f, 0.02f, 0.02f });
+	teapot.SetPosition({ 0.0f, 0.0f, 0.0f });
+	m_meshBoxes.push_back(teapot);
 
-	for (int col = 0; col < 10; col++)
-	{
-		for (int count = 0; count < 10; count++)
-		{
-		Mesh box = Mesh();
-		box.Create(&m_shaderDiffuse);
-		box.SetLightColor({ 1.0f, 1.0f, 1.0f });
-		box.SetLightPosition(m_meshLight.GetPosition());
-		box.SetCameraPosition(m_camera.GetPosition());
-		box.SetScale({ 0.1f, 0.1f, 0.1f });
-		box.SetPosition({
-			0.0, -0.5f + (float)count / 10.0f, -0.2f + (float)col / 10.0f
-			});
-		m_meshBoxes.push_back(box);
-		}
-	}
+	Fonts f = Fonts();
+	f.Create(&m_shaderFont, "arial.ttf", 100);
 
 	//GLFWwindow* win = WindowController::GetInstance().GetWindow();
 	do
@@ -80,14 +72,22 @@ void GameController::RunGame()
 		{
 			m_meshBoxes[count].Render(m_camera.GetProjection() * m_camera.GetView());
 		}
-		m_meshLight.Render(m_camera.GetProjection() * m_camera.GetView());
+		for (unsigned int count = 0; count < Mesh::Lights.size(); count++)
+		{
+			Mesh::Lights[count].Render(m_camera.GetProjection() * m_camera.GetView());
+		}
+
+		f.RenderText("Testing text", 10, 500, 0.5f, { 1.0f, 1.0f, 0.0f });
+
 		glfwSwapBuffers(WindowController::GetInstance().GetWindow());			// Swap the front and back buffers
 		glfwPollEvents();
-
 	} while (glfwGetKey(WindowController::GetInstance().GetWindow(), GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 		glfwWindowShouldClose(WindowController::GetInstance().GetWindow()) == 0); // Check if window was closed
 	
-	m_meshLight.Cleanup();
+	for (unsigned int count = 0; count < Mesh::Lights.size(); count++)
+	{
+		Mesh::Lights[count].Cleanup();
+	}
 	for (unsigned int count = 0; count < m_meshBoxes.size(); count++)
 	{
 		m_meshBoxes[count].Cleanup();

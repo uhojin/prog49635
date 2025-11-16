@@ -4,6 +4,8 @@
 // Include standard headers
 #include <vector>
 #include <string>
+#include <map>
+#include <iostream>
 #include <fstream>
 
 // Windows specific includes and defines
@@ -18,6 +20,10 @@
 #include <glm/glm.hpp>	// GLM
 #include <glm/ext.hpp>	// OpenGL Experimental to_string
 #include <glm/gtc/matrix_transform.hpp>	// View / Projection
+
+// Font includes
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include "Resolution.h"	
 #include "Singleton.h"
