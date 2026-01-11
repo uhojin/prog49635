@@ -1,4 +1,5 @@
 # InitOpenGL
+<img width="880" height="498" alt="spaceship" src="https://github.com/user-attachments/assets/45057af3-564b-4cdf-b171-865fdeba0b14" />
 
 An OpenGL graphics project featuring 3D rendering with skybox, post-processing effects, and mesh loading capabilities.
 
