@@ -15,6 +15,8 @@ public:
 	glm::mat4 GetProjection() { return m_projection; }
 	glm::mat4 GetView() { return m_view; }
 	glm::vec3 GetPosition() { return m_position; }
+	void SetView(glm::mat4 _view) { m_view = _view; }
+	void SetPosition(glm::vec3 _position) { m_position = _position; }
 
 private:
 	glm::mat4 m_projection;

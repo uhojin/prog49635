@@ -3,9 +3,13 @@
 
 // Initialize static variables
 bool MouseController::LeftButtonClicked = false;
+bool MouseController::MiddleButtonClicked = false;
 glm::vec2 MouseController::ClickPosition = glm::vec2(0.0f, 0.0f);
 glm::vec2 MouseController::MovementDirection = glm::vec2(0.0f, 0.0f);
 float MouseController::MovementSpeed = 0.0f;
+glm::vec2 MouseController::CurrentMousePosition = glm::vec2(0.0f, 0.0f);
+glm::vec2 MouseController::PreviousMousePosition = glm::vec2(0.0f, 0.0f);
+glm::vec2 MouseController::MouseDelta = glm::vec2(0.0f, 0.0f);
 
 // GLFW mouse button callback
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -20,7 +24,18 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
         }
         else if (action == GLFW_RELEASE)
         {
-            MouseController::ResetMovement();
+            MouseController::LeftButtonClicked = false;
+        }
+    }
+    else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+    {
+        if (action == GLFW_PRESS)
+        {
+            MouseController::MiddleButtonClicked = true;
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            MouseController::MiddleButtonClicked = false;
         }
     }
 }
@@ -96,6 +111,44 @@ void MouseController::CalculateQuadrantMovement(double xpos, double ypos, int wi
 void MouseController::ResetMovement()
 {
     LeftButtonClicked = false;
+    MiddleButtonClicked = false;
     MovementDirection = glm::vec2(0.0f, 0.0f);
     MovementSpeed = 0.0f;
+    MouseDelta = glm::vec2(0.0f, 0.0f);
+}
+
+void MouseController::Update(GLFWwindow* window)
+{
+    // Store previous position
+    PreviousMousePosition = CurrentMousePosition;
+
+    // Get current cursor position
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+
+    // Get window size for normalization
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+
+    // Normalize to [-1, 1] range
+    // X: left = -1, right = 1
+    // Y: top = -1 (inverted), bottom = 1
+    float normalizedX = ((float)xpos / (float)width) * 2.0f - 1.0f;
+    float normalizedY = -(((float)ypos / (float)height) * 2.0f - 1.0f);  // Invert Y
+
+    CurrentMousePosition = glm::vec2(normalizedX, normalizedY);
+
+    // Calculate delta (change since last frame)
+    MouseDelta = CurrentMousePosition - PreviousMousePosition;
+
+    // Continuously update quadrant-based movement while left button is held
+    if (LeftButtonClicked)
+    {
+        CalculateQuadrantMovement(xpos, ypos, width, height);
+    }
+}
+
+glm::vec2 MouseController::GetNormalizedPosition()
+{
+    return CurrentMousePosition;
 }

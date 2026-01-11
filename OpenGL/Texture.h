@@ -14,6 +14,7 @@ class Texture
 
 	// Methods
 	void LoadTexture(string _fileName);
+	void LoadCubemap(vector<std::string> _faces);
 	void Cleanup();
 
 private:
@@ -22,6 +23,9 @@ private:
 	int m_height;
 	int m_channels;
 	GLuint m_texture;
+
+	// Methods
+	bool EndsWith(const std::string& str, const std::string& _suffix);
 };
 
 #endif // TEXTURE_H

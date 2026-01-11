@@ -4,6 +4,13 @@
 #include "standardincludes.h"
 #include "Texture.h"
 
+// Forward declarations for OBJ_Loader types
+namespace objl
+{
+	struct Vector3;
+	struct Vertex;
+}
+
 class Shader;
 class Mesh
 {
@@ -15,7 +22,10 @@ public:
 	// Accessors
 	void SetPosition(glm::vec3 _position) { m_position = _position; }
 	glm::vec3 GetPosition() { return m_position; }
+	void SetRotation(glm::vec3 _rotation) { m_rotation = _rotation; }
+	glm::vec3 GetRotation() { return m_rotation; }
 	void SetScale(glm::vec3 _scale) { m_scale = _scale; }
+	glm::vec3 GetScale() { return m_scale; }
 	void SetColor(glm::vec3 _color) { m_color = _color; }
 	glm::vec3 GetColor() { return m_color; }
 	void SetLightPosition(glm::vec3 _lightPosition) { m_lightPosition = _lightPosition; }
@@ -39,15 +49,20 @@ private:
 	void SetShaderVariables(glm::mat4 _pv);
 	void BindAttributes();
 	string Concat(string _s1, int _index, string _s2);
+	void CalculateTangents(vector<objl::Vertex> _vertices, objl::Vector3& _tangent, objl::Vector3& _bitangent);
+	string RemoveFolder(string _map);
 
 	// Members
 	Shader* m_shader;
-	Texture m_texture;
-	Texture m_texture2;
+	Texture m_textureDiffuse;
+	Texture m_textureSpecular;
+	Texture m_textureNormal;
 	GLuint m_vertexBuffer;
 	GLuint m_indexBuffer;
 	std::vector<GLfloat> m_vertexData;
 	std::vector<GLubyte> m_indexData;
+	bool m_enableNormalMap;
+	int m_elementSize;
 
 
 	// Transform
