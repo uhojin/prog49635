@@ -39,5 +39,17 @@
 
 # debug information files
 *.dwo
-/.vs/InitOpenGL/FileContentIndex
-/.vs
+
+# Visual Studio files
+.vs/
+Debug/
+Release/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.ipch
+*.db
+*.opendb
+*.db-shm
+*.db-wal
